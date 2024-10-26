@@ -16,95 +16,126 @@ import java.util.Comparator;
 
 
 public class Main {
-    private static ArrayList<Employee> employees = new ArrayList<>();
+    private static final ArrayList<Employee> employees = new ArrayList<>();
+    private static final Scanner scanner = new Scanner(System.in);
+    private static int currentId = 1; // Start ID from 1
+
+    private static void inputEmployee() {
+        System.out.print("Enter Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter Phone: ");
+        String phone = scanner.nextLine();
+
+        System.out.print("Enter Address: ");
+        String address = scanner.nextLine();
+
+        double salary;
+        while (true) {
+            System.out.print("Enter Salary: ");
+            if (scanner.hasNextDouble()) {
+                salary = scanner.nextDouble();
+                if (salary >= 0) {
+                    break;
+                } else {
+                    System.out.println("Invalid salary! Please enter a non-negative salary.");
+                }
+            } else {
+                System.out.println("Invalid input! Please enter a valid number.");
+                scanner.next(); 
+            }
+        }
+        scanner.nextLine(); 
+
+        employees.add(new Employee(currentId++, name, phone, address, salary));
+        System.out.println("Employee added successfully!");
+    }
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
         int choice;
-
         do {
-            System.out.println("\nMenu:");
+            System.out.println("\nEMPLOYEE MANAGEMENT");
             System.out.println("1. Input employee");
             System.out.println("2. Display employee list");
-            System.out.println("3. Show best employee");
-            System.out.println("4. Display sorted employee");
-            System.out.println("5. Exit");
-            System.out.print("Enter your choice: ");
-            choice = sc.nextInt();
+            System.out.println("3. Show employee with highest salary");
+            System.out.println("4. Display sorted employees by salary");
+            System.out.println("0. Exit");
+            System.out.print("Choose: ");
+            choice = scanner.nextInt();
+            scanner.nextLine(); 
 
             switch (choice) {
                 case 1:
-                    inputEmployee(sc);
+                    inputEmployee();
                     break;
                 case 2:
-                    displayEmployees();
+                    displayEmployeeList();
                     break;
                 case 3:
-                    showBestEmployee();
+                    showHighestSalaryEmployee();
                     break;
                 case 4:
                     displaySortedEmployees();
                     break;
-                case 5:
-                    System.out.println("Exiting program...");
+                case 0:
+                    System.out.println("Exiting...");
                     break;
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println("Invalid choice! Please try again.");
+                    break;
             }
-        } while (choice != 5);
-
-        sc.close();
+        } while (choice != 0);
     }
 
-    private static void inputEmployee(Scanner scanner) {
-        System.out.print("Enter employee ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+    private static void displayEmployeeList() {
+        System.out.printf("%-5s %-20s %-15s %-20s %-10s%n", "ID", "Name", "Phone", "Address", "Salary");
+        System.out.println("--------------------------------------------------------------------------");
 
-        System.out.print("Enter employee name: ");
-        String name = scanner.nextLine();
-
-        System.out.print("Enter employee phone: ");
-        String phone = scanner.nextLine();
-
-        System.out.print("Enter employee address: ");
-        String address = scanner.nextLine();
-
-        System.out.print("Enter employee salary: ");
-        double salary = scanner.nextDouble();
-
-        employees.add(new Employee(id, name, phone, address, salary));
-        System.out.println("Employee added successfully.");
+        for (Employee employee : employees) {
+            System.out.printf("%-5d %-20s %-15s %-20s %-10.2f%n", 
+                              employee.getId(), 
+                              employee.getName(), 
+                              employee.getPhone(), 
+                              employee.getAddress(), 
+                              employee.getSalary());
+        }
     }
 
-    private static void displayEmployees() {
+    private static void showHighestSalaryEmployee() {
         if (employees.isEmpty()) {
             System.out.println("No employees to display.");
-        } else {
-            System.out.printf("%-10s %-20s %-15s %-25s %-10s\n", "ID", "Name", "Phone", "Address", "Salary");
-            for (Employee emp : employees) {
-                System.out.printf("%-10d %-20s %-15s %-25s %-10.2f\n", emp.getId(), emp.getName(), emp.getPhone(), emp.getAddress(), emp.getSalary());
-            }
+            return;
         }
-    }
 
-    private static void showBestEmployee() {
-        if (employees.isEmpty()) {
-            System.out.println("No employees available.");
-        } else {
-            Employee bestEmployee = Collections.max(employees, Comparator.comparingDouble(Employee::getSalary));
-            System.out.println("Best employee:");
-            System.out.printf("%-10d %-20s %-15s %-25s %-10.2f\n", bestEmployee.getId(), bestEmployee.getName(), bestEmployee.getPhone(), bestEmployee.getAddress(), bestEmployee.getSalary());
-        }
+        Employee highestSalaryEmployee = Collections.max(employees, Comparator.comparing(Employee::getSalary));
+        System.out.printf("%-5s %-20s %-15s %-20s %-10s%n", "ID", "Name", "Phone", "Address", "Salary");
+        System.out.println("--------------------------------------------------------------------------");
+        System.out.printf("%-5d %-20s %-15s %-20s %-10.2f%n", 
+                          highestSalaryEmployee.getId(), 
+                          highestSalaryEmployee.getName(), 
+                          highestSalaryEmployee.getPhone(), 
+                          highestSalaryEmployee.getAddress(), 
+                          highestSalaryEmployee.getSalary());
     }
 
     private static void displaySortedEmployees() {
         if (employees.isEmpty()) {
-            System.out.println("No employees to sort.");
-        } else {
-            employees.sort(Comparator.comparingDouble(Employee::getSalary));
-            System.out.println("Employees sorted by salary (lowest to highest):");
-            displayEmployees();
+            System.out.println("No employees to display.");
+            return;
+        }
+
+        employees.sort(Comparator.comparingDouble(Employee::getSalary));
+
+        System.out.printf("%-5s %-20s %-15s %-20s %-10s%n", "ID", "Name", "Phone", "Address", "Salary");
+        System.out.println("--------------------------------------------------------------------------");
+        for (Employee employee : employees) {
+            System.out.printf("%-5d %-20s %-15s %-20s %-10.2f%n", 
+                              employee.getId(), 
+                              employee.getName(), 
+                              employee.getPhone(), 
+                              employee.getAddress(), 
+                              employee.getSalary());
         }
     }
+
 }
